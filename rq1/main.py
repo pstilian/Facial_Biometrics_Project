@@ -12,7 +12,7 @@ import models
 from tqdm import tqdm
 
 ''' Load the data and their labels '''
-image_directory = 'D:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset'
+image_directory = 'Z:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset x36'
 X, y = get_images.get_images(image_directory)
 clf = models.CNN()
 

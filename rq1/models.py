@@ -12,6 +12,8 @@ class VisionTransformer:
         self.clf = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224').to("cuda")
         self.feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
         self.optimizer = Adam(self.clf.parameters(),lr=1e-5)
+        self.clf.classifier = torch.nn.Linear(in_features=768,out_features=2,bias=True)
+        self.clf.num_labels = 2
     
     def fit(self, X_train, y_train) -> None:
         self.clf.train()
@@ -43,10 +45,10 @@ class VisionTransformer:
 
 class CNN:
     def __init__(self) -> None:
-        self.clf = torch.hub.load('pytorch/vision:v0.10.0', 'resnet18', pretrained=True)
+        self.device = 'cuda'
+        self.clf = torch.hub.load('pytorch/vision:v0.10.0', 'resnet18', pretrained=True).to(self.device)
+        self.clf.fc = torch.nn.Linear(in_features=512,out_features=2,bias=True).to(self.device)
         self.optimizer = Adam(self.clf.parameters(),lr=1e-5)
-        self.device = 'cpu'
-        self.clf.fc = torch.nn.Linear(in_features=512,out_features=2,bias=True)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.preprocess = transforms.Compose([
             transforms.Resize(256),
