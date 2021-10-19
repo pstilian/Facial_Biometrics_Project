@@ -5,16 +5,16 @@ import warnings
 warnings.warn = warn
 
 import get_images
-from transformers import ViTFeatureExtractor, ViTForImageClassification
-import torch
-from torch.optim import Adam
+
 # import get_landmarks
 import numpy as np
+import models
 from tqdm import tqdm
 
 ''' Load the data and their labels '''
-image_directory = 'Caltech Faces Dataset'
+image_directory = 'D:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset'
 X, y = get_images.get_images(image_directory)
+clf = models.CNN()
 
 ''' Get distances between face landmarks in the images '''
 # get_landmarks(images, labels, save_directory="", num_coords=5, to_save=False)
@@ -22,9 +22,7 @@ X, y = get_images.get_images(image_directory)
 
 ''' Matching and Decision '''
 # create an instance of the classifier
-clf = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224').to("cuda")
-feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
-optimizer = Adam(clf.parameters(),lr=1e-5)
+
 
 num_correct = 0
 labels_correct = []
@@ -43,39 +41,21 @@ for i in range(0, len(y)):
     y_hat = np.zeros(len(template_labels))
     y_hat[template_labels == query_label] = 1 
     y_hat[template_labels != query_label] = 0
-    
-    template_imgs = np.reshape(template_imgs,(412,3,224,224))
-    # template_imgs = feature_extractor(images=template_imgs, return_tensors="pt")
 
     # fit
     # leave batch size at 1 for now
-    clf.train()
-    for img in tqdm(range(template_imgs.shape[0])):
-        label = torch.tensor(y_hat[img],dtype=torch.long).to('cuda')
-        img = feature_extractor(images=template_imgs[img], return_tensors="pt")
-        img = img.to('cuda')
-        outputs = clf(**img,labels=label)
-        loss = outputs.loss
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
+    clf.fit(template_imgs, y_hat)
     
 
     # predict
     # Gather results
-    clf.eval()
-    with torch.no_grad():
-        img = feature_extractor(images=query_img, return_tensors="pt")
-        img = img.to('cuda')
-        outputs = clf(**img)
-        logits = outputs.logits
-        y_pred = logits.argmax(-1).item()
-        if y_pred == 1:
-            num_correct += 1
-            labels_correct.append(query_label)
-        else:
-            num_incorrect += 1
-            labels_incorrect.append(query_label)
+    y_pred = clf.predict(query_img)
+    if y_pred == 1:
+        num_correct += 1
+        labels_correct.append(query_label)
+    else:
+        num_incorrect += 1
+        labels_incorrect.append(query_label)
 
 # Print results
 print()
