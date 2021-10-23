@@ -3,66 +3,83 @@
 Created on Mon Oct 11 14:24:39 2021
 
 @author: Peter Stilian
+
+This program is designed to be ran inside it's current directory with the dataset located in the parent directory
+and named 'Project 1 Database' If a different Database folder is to be used rename the parameter for get_images (Line 53).
+
+Returns: Fully converted datasets in Grayscale, Canny Edge detected and gaussian Blurred forms
 """
 
 import cv2
 import os
-import numpy as np
-from matplotlib import pyplot as plt
-
-"""
-This function takes in a filepath of an image and converts it to grayscale version 2 will simply take in an array
-of input images an output an array of grayscale images
-Parmeters: image, The filepath for the image to be downloaded  Returns: gray_image a grayscale version of original image
-"""
-def Grayscale(image):
-    img = cv2.imread(image, cv2.IMREAD_UNCHANGED)
-    cv2.imshow('Original Image', img)
-    #cv2.waitKey(0)
-    
-    gray_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    
-    #cv2.imshow('Grayscale Image', gray_image)
-    #cv2.waitKey(0)
-    
-    #cv2.destroyAllWIndows()
-    
-    #cv2.imwrite('E:\gray.png',gray_image)
-
-    return gray_image    
 
 
-
-def Canny_Edge(image):
-    img = cv2.imread(image, 0)
-    edges = cv2.Canny(img, 80, 110)  # 2nd and 3rd parameters are lower and higer intensity gradients
-    edges2 = cv2.Canny(img, 30, 150)
-    #cv2.imshow('Canny Image', edges)
-    #cv2.waitKey(0)
+def get_images(image_directory):
+    X = []
+    y = []
+    extensions = ('jpg','png','gif')
     
-    #cv2.imwrite('E:\canny.png',edges)
+    '''
+    Each subject has their own folder with their
+    images. The following line lists the names
+    of the subfolders within image_directory.
+    '''
+    subfolders = os.listdir(image_directory)
+    for subfolder in subfolders:
+        print("Loading images in %s" % subfolder)
+        if os.path.isdir(os.path.join(image_directory, subfolder)): # only load directories
+            subfolder_files = os.listdir(
+                    os.path.join(image_directory, subfolder)
+                    )
+            for file in subfolder_files:
+                if file.endswith(extensions): # grab images only
+                    # read the image using openCV                    
+                    img = cv2.imread(
+                            os.path.join(image_directory, subfolder, file)
+                            )
+                    # resize the image                     
+                    width = 224
+                    height = 224
+                    dim = (width, height)
+                    img = cv2.resize(img, dim)
+                    # add the resized image to a list X
+                    X.append(img)
+                    
+                    # add the image's label to a list y
+                    y.append(subfolder)
     
-    return edges, edges2
+    print("All images are loaded")     
+    # return the images and their labels      
+    return X, y
+
+x, y = get_images('../Project 1 Database')
+
+gray_dir = '../GrayscaleDatabase/'
+canny_dir = '../CannyDatabase/'
+blur_dir = '../BlurDatabase/'
 
 
-
-def Gauss_Blur(image):
-    img = cv2.imread(image, cv2.IMREAD_UNCHANGED)
-    blur = cv2.GaussianBlur(img, (55, 55), 0) # 2nd parameter is responsible for blurring kernel greater size = greater blur
+for i in range(len(x)):
+    curimg = x[i]
+    curdir = y[i]
     
-    #cv2.imshow('Blurred Image', blur)
-    #cv2.waitKey(0)
+    path = os.path.join(gray_dir, curdir)
+    os.makedirs(path, exist_ok=True)   
+    g = cv2.cvtColor(curimg, cv2.COLOR_BGR2GRAY)    
+    filename = path + '/' + curdir + '_' + str(i) + '_grayscale.png'
+    cv2.imwrite(filename, g)
     
-    #cv2.imwrite('E:\blur.png',blur)
+    path = os.path.join(canny_dir, curdir)
+    os.makedirs(path, exist_ok=True) 
+    temp = cv2.GaussianBlur(g, (3, 3), 0)
+    c = cv2.Canny(temp, 30, 150)   
+    filename = path + '/' + curdir + '_' + str(i) + '_canny.png'
+    cv2.imwrite(filename, c)
     
-    return blur
-
-g = Grayscale('E:\Project 1 Database\AntonioLaverghetta/BL_BL_2.png')
-cv2.imwrite('E:\gray.png',g)
+    path = os.path.join(blur_dir, curdir)
+    os.makedirs(path, exist_ok=True)   
+    b = cv2.GaussianBlur(curimg, (15, 15), 0)    
+    filename = path + '/' + curdir + '_' + str(i) + '_blur.png'
+    cv2.imwrite(filename, b)
     
-c1, c2 = Canny_Edge('E:\Project 1 Database\AntonioLaverghetta/BL_BL_2.png')
-cv2.imwrite('E:\canny.png',c1)
-cv2.imwrite('E:\canny2.png',c2)
-
-ga = Gauss_Blur('E:\Project 1 Database\AntonioLaverghetta/BL_BL_2.png')
-cv2.imwrite('E:\gauss.png',ga)
+print('Database Creation Complete')
