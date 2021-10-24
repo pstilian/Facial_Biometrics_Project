@@ -81,3 +81,49 @@ class CNN:
             probabilities = torch.nn.functional.softmax(outputs, dim=0)
             y_pred = torch.argmax(probabilities)
             return y_pred
+
+
+class FCC:
+    # TODO implement a simple MLP to use as a baseline
+    def __init__(self,img_shape) -> None:
+        self.device = 'cuda'
+        self.clf = torch.nn.Sequential(
+            torch.nn.Linear(img_shape*img_shape*3,256),
+            torch.nn.Sigmoid(),
+            torch.nn.Linear(256,256),
+            torch.nn.Sigmoid(),
+            torch.nn.Linear(256,256),
+            torch.nn.Sigmoid(),
+            torch.nn.Linear(256,256),
+            torch.nn.Sigmoid(),
+            torch.nn.Linear(256,2),
+            torch.nn.Softmax()
+        )
+        self.optimizer = Adam(self.clf.parameters(),lr=0.0005)
+        self.criterion = torch.nn.CrossEntropyLoss()
+        self.clf.to('cuda')
+    
+    def fit(self, X_train, y_train):
+        self.clf.train()
+        template_imgs = X_train
+
+        for img in tqdm(range(template_imgs.shape[0])):
+            label = torch.tensor(y_train[img],dtype=torch.long).to(self.device)
+            img = torch.flatten(torch.Tensor(template_imgs[img]))
+            img = img.to(self.device)
+
+            outputs = self.clf(img)
+            loss = self.criterion(outputs.unsqueeze(0),label.unsqueeze(0))
+            loss.backward()
+            self.optimizer.step()
+            self.optimizer.zero_grad()
+
+    def predict(self, query_img):
+        self.clf.eval()
+        with torch.no_grad():
+            img = torch.flatten(torch.Tensor(query_img))
+            img = img.to(self.device)
+            probabilities = self.clf(img)
+            # probabilities = torch.nn.functional.softmax(outputs, dim=0)
+            y_pred = torch.argmax(probabilities)
+            return y_pred

@@ -1,6 +1,7 @@
 # Load imports
 import os 
 import cv2
+import pandas as pd
 
 '''
 function get_images() definition
@@ -9,8 +10,9 @@ holding the images
 '''
 
 def get_images(image_directory):
-    X = []
-    y = []
+    # X = []
+    # y = []
+    df = pd.DataFrame(columns=["X","y"])
     extensions = ('jpg','png','gif')
     
     '''
@@ -32,19 +34,22 @@ def get_images(image_directory):
                             os.path.join(image_directory, subfolder, file)
                             )
                     # resize the image
-                    # they must be 224 * 224 since this is what ViT expects                     
-                    width = 224
-                    height = 224
+                    # they must be 224 * 224 since this is what ViT expects
+                    # however, for FCC I am using 64 * 64 to prevent the parameters from blowing up                     
+                    width = 16
+                    height = 16
                     dim = (width, height)
                     img = cv2.resize(img, dim)
                     # add the resized image to a list X
-                    X.append(img)
+                    # X.append(img)
                     # add the image's label to a list y
-                    y.append(subfolder)
+                    # y.append(subfolder)
+                    df = df.append({"X":img,"y":subfolder},ignore_index=True)
     
     print("All images are loaded")     
     # return the images and their labels      
-    return X, y
+    # return X, y
+    return df
                     
                 
             

@@ -12,9 +12,11 @@ import models
 from tqdm import tqdm
 
 ''' Load the data and their labels '''
-image_directory = 'Z:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset x36'
-X, y = get_images.get_images(image_directory)
-clf = models.CNN()
+image_directory = 'Z:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset'
+df = get_images.get_images(image_directory)
+# shuffle
+df = df.sample(frac=1)
+clf = models.FCC(df.iloc[0]["X"].shape[0])
 
 ''' Get distances between face landmarks in the images '''
 # get_landmarks(images, labels, save_directory="", num_coords=5, to_save=False)
@@ -29,12 +31,14 @@ labels_correct = []
 num_incorrect = 0
 labels_incorrect = []
 
-for i in range(0, len(y)):
-    query_img = X[i]
-    query_label = y[i]
+for i in range(0, 150):
+    query_img = df.iloc[i]["X"].__array__()
+    query_label = df.iloc[i]["y"]
     
-    template_imgs = np.delete(X, i, 0)
-    template_labels = np.delete(y, i)
+    # template_imgs = np.delete(X, i, 0)
+    template_imgs = df.drop(index=i,axis=0)["X"].__array__()
+    # template_labels = np.delete(y, i)
+    template_labels = df.drop(index=i,axis=0)["y"].__array__()
         
     # Set the appropriate labels
     # 1 is genuine, 0 is impostor
