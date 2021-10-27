@@ -86,7 +86,7 @@ class CNN:
 class FCC:
     # TODO implement a simple MLP to use as a baseline
     def __init__(self,img_shape) -> None:
-        self.device = 'cuda'
+        self.device = 'cpu'
         self.clf = torch.nn.Sequential(
             torch.nn.Linear(img_shape*img_shape*3,256),
             torch.nn.Sigmoid(),
@@ -99,9 +99,9 @@ class FCC:
             torch.nn.Linear(256,2),
             torch.nn.Softmax()
         )
-        self.optimizer = Adam(self.clf.parameters(),lr=0.0005)
+        self.optimizer = Adam(self.clf.parameters(),lr=5e-2)
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.clf.to('cuda')
+        self.clf.to(self.device)
     
     def fit(self, X_train, y_train):
         self.clf.train()

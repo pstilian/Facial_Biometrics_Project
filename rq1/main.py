@@ -12,11 +12,10 @@ import models
 from tqdm import tqdm
 
 ''' Load the data and their labels '''
-image_directory = 'Z:/Code/Facial_Biometrics_Project/rq1/Caltech Faces Dataset'
+image_directory = 'D:/Code/Facial_Biometrics_Project/rq1/GrayscaleDatabase'
 df = get_images.get_images(image_directory)
 # shuffle
 df = df.sample(frac=1)
-clf = models.FCC(df.iloc[0]["X"].shape[0])
 
 ''' Get distances between face landmarks in the images '''
 # get_landmarks(images, labels, save_directory="", num_coords=5, to_save=False)
@@ -31,7 +30,8 @@ labels_correct = []
 num_incorrect = 0
 labels_incorrect = []
 
-for i in range(0, 150):
+for i in range(0, 300):
+    clf = models.FCC(df.iloc[0]["X"].shape[0])
     query_img = df.iloc[i]["X"].__array__()
     query_label = df.iloc[i]["y"]
     

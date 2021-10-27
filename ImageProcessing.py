@@ -52,11 +52,11 @@ def get_images(image_directory):
     # return the images and their labels      
     return X, y
 
-x, y = get_images('../Project 1 Database')
+x, y = get_images('./rq1/Caltech Faces Dataset')
 
-gray_dir = '../GrayscaleDatabase/'
-canny_dir = '../CannyDatabase/'
-blur_dir = '../BlurDatabase/'
+gray_dir = './rq1/GrayscaleDatabase/'
+canny_dir = './rq1/CannyDatabase/'
+blur_dir = './rq1/BlurDatabase/'
 
 
 for i in range(len(x)):
