@@ -11,11 +11,14 @@ import numpy as np
 import models
 from tqdm import tqdm
 
+import performance_plots
+
 ''' Load the data and their labels '''
-image_directory = 'D:/Code/Facial_Biometrics_Project/rq1/GrayscaleDatabase'
+image_directory = 'Input/Project 1 Database 5 Males and 5 Females'
 df = get_images.get_images(image_directory)
 # shuffle
 df = df.sample(frac=1)
+clf = models.FCC(df.iloc[0]["X"].shape[0])
 
 ''' Get distances between face landmarks in the images '''
 # get_landmarks(images, labels, save_directory="", num_coords=5, to_save=False)
@@ -30,8 +33,10 @@ labels_correct = []
 num_incorrect = 0
 labels_incorrect = []
 
+gen_scores = []
+imp_scores = []
+
 for i in range(0, 300):
-    clf = models.FCC(df.iloc[0]["X"].shape[0])
     query_img = df.iloc[i]["X"].__array__()
     query_label = df.iloc[i]["y"]
     
@@ -53,17 +58,31 @@ for i in range(0, 300):
 
     # predict
     # Gather results
-    y_pred = clf.predict(query_img)
+    y_pred, probability = clf.predict(query_img)
+    
+    """print(y_hat)
+    print(y_pred)
+    print(probability)"""
+    
     if y_pred == 1:
         num_correct += 1
         labels_correct.append(query_label)
     else:
         num_incorrect += 1
         labels_incorrect.append(query_label)
-
+    
+    if y_hat[i] == 1 and y_pred == 1:
+        gen_scores.append(probability.item())
+    else:
+        imp_scores.append(probability.item())
+    
 # Print results
-print()
 print("Num correct = %d, Num incorrect = %d, Accuracy = %0.2f" 
-      % (num_correct, num_incorrect, num_correct/(num_correct+num_incorrect)))    
+      % (num_correct, num_incorrect, num_correct/(num_correct+num_incorrect))) 
+
+"""gen_score = [0.1, 0.2, 0.3, 0.4, 0.5]
+imp_score = [0.5, 0.6, 0.7, 0.8, 0.9]"""
+
+performance_plots.performance(gen_scores, imp_scores, 'Equal Number of Male and Female Classmates Data', 500)
     
     

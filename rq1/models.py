@@ -1,4 +1,4 @@
-from transformers import ViTFeatureExtractor, ViTForImageClassification
+#from transformers import ViTFeatureExtractor, ViTForImageClassification
 import torch
 import numpy as np
 from torch.optim import Adam
@@ -7,7 +7,7 @@ from PIL import Image
 from torchvision import transforms
 
 # VisionTransformer Class
-class VisionTransformer:
+"""class VisionTransformer:
     def __init__(self) -> None:
         self.clf = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224').to("cuda")
         self.feature_extractor = ViTFeatureExtractor.from_pretrained('google/vit-base-patch16-224')
@@ -40,12 +40,12 @@ class VisionTransformer:
             outputs = self.clf(**img)
             logits = outputs.logits
             y_pred = logits.argmax(-1).item()
-            return y_pred
+            return y_pred"""
 
 
 class CNN:
     def __init__(self) -> None:
-        self.device = 'cuda'
+        self.device = 'cpu'
         self.clf = torch.hub.load('pytorch/vision:v0.10.0', 'resnet18', pretrained=True).to(self.device)
         self.clf.fc = torch.nn.Linear(in_features=512,out_features=2,bias=True).to(self.device)
         self.optimizer = Adam(self.clf.parameters(),lr=1e-5)
@@ -99,9 +99,9 @@ class FCC:
             torch.nn.Linear(256,2),
             torch.nn.Softmax()
         )
-        self.optimizer = Adam(self.clf.parameters(),lr=5e-2)
+        self.optimizer = Adam(self.clf.parameters(), lr=2e-2)
         self.criterion = torch.nn.CrossEntropyLoss()
-        self.clf.to(self.device)
+        self.clf.to('cpu')
     
     def fit(self, X_train, y_train):
         self.clf.train()
@@ -124,6 +124,7 @@ class FCC:
             img = torch.flatten(torch.Tensor(query_img))
             img = img.to(self.device)
             probabilities = self.clf(img)
+            probability = torch.max(probabilities)
             # probabilities = torch.nn.functional.softmax(outputs, dim=0)
             y_pred = torch.argmax(probabilities)
-            return y_pred
+            return y_pred, probability
