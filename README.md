@@ -31,13 +31,13 @@ Contains a few functions that resizes the images of a dataset.
 FaceCapture.py：
 Contains a few functions that automatically identify a bounding box around the face, and crop anything outside it.
 
-data_reader.py
+data_reader.py:
 Reads through the images of a dataset.
 
-feature_extractor.py
+feature_extractor.py:
 contains the class FeatureExtractor. This class implements the fit-transform paradigm. Given a list of images, it computes the eigenfaces and saves them for future use.
 
-image.py
+image.py:
 contains the Image class, which is a class that wraps a 2D numpy array and creates an abstraction for an image.
 
 training.py: 
