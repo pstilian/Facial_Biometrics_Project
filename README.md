@@ -19,6 +19,16 @@ Contains the implementation of each of our neural models.
 performance_plots.py:
 Various helper functions for graphing performance, identical to the guided learning activity.
 
+get_images.py:
+Reads through the images of a dataset, resizes the images, and returns a pandas dataframe storing the images.
+
+Svm.py:
+Contains the SVM implementation of our facial biometric system.
+
+sizeChange.py:
+Contains a few functions that resizes the images of a dataset.
+
+
 ### Required Packages:
 
 1. OpenCV
