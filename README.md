@@ -28,6 +28,25 @@ Contains the SVM implementation of our facial biometric system.
 sizeChange.py:
 Contains a few functions that resizes the images of a dataset.
 
+FaceCapture.py：
+Contains a few functions that automatically identify a bounding box around the face, and crop anything outside it.
+
+data_reader.py
+Reads through the images of a dataset.
+
+feature_extractor.py
+contains the class FeatureExtractor. This class implements the fit-transform paradigm. Given a list of images, it computes the eigenfaces and saves them for future use.
+
+image.py
+contains the Image class, which is a class that wraps a 2D numpy array and creates an abstraction for an image.
+
+training.py: 
+Contains the 10 fold corss validation and several classifiers to train our facial biometric system.
+
+main.py: 
+recognizes the face in a new image using the model learned by training.py.
+
+
 
 ### Required Packages:
 
