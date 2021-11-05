@@ -43,8 +43,6 @@ contains the Image class, which is a class that wraps a 2D numpy array and creat
 training.py: 
 Contains the 10 fold corss validation and several classifiers to train our facial biometric system.
 
-main.py: 
-recognizes the face in a new image using the model learned by training.py.
 
 
 
