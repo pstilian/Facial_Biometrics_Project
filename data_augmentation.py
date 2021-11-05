@@ -29,7 +29,7 @@ for subfolder in subfolders:
             if file.endswith(extensions):  # grab images only
                 filename, file_extension = os.path.splitext(os.path.join(image_directory, subfolder, file))
                 if file_extension == '.jpg':
-                    file_extension = '.jpeg'
+                    file_extension = '.jpeg' # renames the extension from .jpg to .jpeg since image_slicer does not recognize .jpg
                 tiles = image_slicer.slice(os.path.join(image_directory, subfolder, file), num_slices, save=False)
                 image_slicer.save_tiles(tiles, directory=os.path.join(output_directory, subfolder),
                                         prefix=file, format=file_extension.replace(".", ""))
