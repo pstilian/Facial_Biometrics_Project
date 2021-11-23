@@ -20,9 +20,12 @@ from haroun.losses import rmse
 from haroun import Data, Model, ConvPool
 import torch
 import sys
+import skimage.transform as tf
 
 sys.path.append("../")
 from deepfake_model import Network
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 '''run FaceCapture.py before run this file'''
 '''run FaceCapture.py before run this file'''
@@ -31,8 +34,18 @@ from deepfake_model import Network
 
 # checks each image in the dataset to determine if it is a fake
 # if so, the image pixel values are zeroed out
-def detect_deepfakes():
-    pass
+def detect_deepfakes(data, AntiSpoofClassifier):
+    batch = np.empty((0,64,64))
+    with torch.no_grad():
+        for img in data[0]:
+            # print(img.values.shape)
+            img.values = tf.resize(img.values, (64,64))
+            batch = np.concatenate((batch,np.expand_dims(img.values,axis=0)))
+        
+        batch = torch.Tensor(batch,device=device).unsqueeze(1)
+        batch = batch.expand(-1,3,-1,-1)
+        result = AntiSpoofClassifier.net(batch)
+        # TODO: iterate through predictions and zero out fakes
 
 
 
@@ -57,8 +70,7 @@ def main():
     data = data_reader.getAllData(shuffle=True)  # we shuffle the data so we can do Cross-Validation
 
     # TODO: add deepfake model here
-    test = torch.load("module.pth")
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    test = torch.load("module.pth",map_location=torch.device('cpu'))
     net = Network()
     net.load_state_dict(test)
     AntiSpoofClassifier = Model(net, "adam", rmse, device)
