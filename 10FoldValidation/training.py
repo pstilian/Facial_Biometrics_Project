@@ -16,11 +16,24 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn import svm
+from haroun.losses import rmse
+from haroun import Data, Model, ConvPool
+import torch
+import sys
+
+sys.path.append("../")
+from deepfake_model import Network
 
 '''run FaceCapture.py before run this file'''
 '''run FaceCapture.py before run this file'''
 '''run FaceCapture.py before run this file'''
 '''The first VotingClassifier is voting='hard', the second one is voting='soft' '''
+
+# checks each image in the dataset to determine if it is a fake
+# if so, the image pixel values are zeroed out
+def detect_deepfakes():
+    pass
+
 
 
 def main():
@@ -42,6 +55,15 @@ def main():
             estimators = [('kn',kn_clf),('bl',bl_clf),('rf',rf_clf),('svm',svm_clf)],voting='soft')
     
     data = data_reader.getAllData(shuffle=True)  # we shuffle the data so we can do Cross-Validation
+
+    # TODO: add deepfake model here
+    test = torch.load("module.pth")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    net = Network()
+    net.load_state_dict(test)
+    AntiSpoofClassifier = Model(net, "adam", rmse, device)
+    detect_deepfakes(data,AntiSpoofClassifier)
+
     num_folds = 10
     #print (data[0])
 
@@ -103,10 +125,13 @@ def main():
     pickle.dump(feature_extractor, f)
     f.close()
 
-def retry():
-    try:
-        main()
-        return
-    except Exception as e:
-        retry()  
-retry()
+# def retry():
+#     try:
+#         main()
+#         return
+#     except Exception as e:
+#         retry()  
+# retry()
+
+if __name__ == "__main__":
+    main()
