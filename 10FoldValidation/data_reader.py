@@ -31,51 +31,53 @@ class DataReader:
         # the folder "si" contains 10 images of the person "i"
 
         # class_folder will iterate through ['s1', 's2', ..., 's40']
-        for class_folder in os.listdir(data_path):
-            #fileList2 = os.listdir(data_path)
-            #fileList = os.listdir(data_path + class_folder)
-            #print("===============")
-            #print (data_path)
-            #print (len(fileList2))
-            # each folder "si" corresponds to the person "i", so the label associated with
-            # the current person is "i" ; that's what current_label captures
-            current_label = int(class_folder.split('s')[1])
+        for data_type_folder in os.listdir(data_path):
+            data_type_folder = data_path + data_type_folder
+            for class_folder in os.listdir(data_type_folder):
+                #fileList2 = os.listdir(data_path)
+                #fileList = os.listdir(data_path + class_folder)
+                #print("===============")
+                #print (data_path)
+                #print (len(fileList2))
+                # each folder "si" corresponds to the person "i", so the label associated with
+                # the current person is "i" ; that's what current_label captures
+                current_label = int(class_folder.split('s')[1])
 
-            # we know that we have 10 images for each person, we iterate through them
-            fileList = os.listdir(data_path + class_folder)
-            #print("===============")
-            #print (data_path + class_folder)
-            #print (len(fileList))
-            #print("===============")
-            #print(" ")
-            #print(" ")
-            
-            #for i in range(1, len(fileList)):
-            for i in range(1, len(fileList)+1):
-                # read the i-th image of the person
-                #img = self.read(data_path + class_folder + os.sep + "{0}.pgm".format(i))
-                img = self.read(data_path + class_folder + os.sep + "{0}.pgm".format(i))
+                # we know that we have 10 images for each person, we iterate through them
+                fileList = os.listdir(data_type_folder + "/" + class_folder)
+                #print("===============")
+                #print (data_path + class_folder)
+                #print (len(fileList))
+                #print("===============")
+                #print(" ")
+                #print(" ")
+                
+                #for i in range(1, len(fileList)):
+                for i in range(1, len(fileList)+1):
+                    # read the i-th image of the person
+                    #img = self.read(data_path + class_folder + os.sep + "{0}.pgm".format(i))
+                    img = self.read(data_type_folder + "/" + class_folder + "/" + "{0}.pgm".format(i))
 
-                # update data
-                self.data[0].append(img)
-                self.data[1].append(current_label)
+                    # update data
+                    self.data[0].append(img)
+                    self.data[1].append(current_label)
+                    #print(len(self.data[0]))
+                    # randomly decide to add the image the the train, validation, or test set,
+                    # depending on the ratio of each subset.
+                    r = random.random()
+                    if r < self.valid_ratio:
+                        self.valid_data[0].append(img)
+                        self.valid_data[1].append(current_label)
+
+                    elif r < self.valid_ratio + self.test_ratio:
+                        self.test_data[0].append(img)
+                        self.test_data[1].append(current_label)
+
+                    else:
+                        self.train_data[0].append(img)
+                        self.train_data[1].append(current_label)
+                #print("===============")
                 #print(len(self.data[0]))
-                # randomly decide to add the image the the train, validation, or test set,
-                # depending on the ratio of each subset.
-                r = random.random()
-                if r < self.valid_ratio:
-                    self.valid_data[0].append(img)
-                    self.valid_data[1].append(current_label)
-
-                elif r < self.valid_ratio + self.test_ratio:
-                    self.test_data[0].append(img)
-                    self.test_data[1].append(current_label)
-
-                else:
-                    self.train_data[0].append(img)
-                    self.train_data[1].append(current_label)
-            #print("===============")
-            #print(len(self.data[0]))
 
 
     def getAllData(self, shuffle=False):
